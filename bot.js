@@ -30,6 +30,8 @@ client.once(Events.ClientReady, async(readyClient) => {
         
         writeTweetsToJson(tweets);
     }
+
+    return;
     
     
 });
