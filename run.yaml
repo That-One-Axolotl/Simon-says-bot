@@ -1,0 +1,53 @@
+name: Run script and update file
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes (UTC)
+  workflow_dispatch:          # lets you run it manually from the Actions tab
+
+# Needed so the workflow can push commits back to the repo
+permissions:
+  contents: write
+
+# Prevents overlapping runs from conflicting when pushing
+concurrency:
+  group: run-and-update
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm   # remove this line if you have no package-lock.json
+
+      # Remove this step if your script has no dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run script
+        # Your script writes to data/output.txt while it runs
+        run: node index.js
+        env:
+          # Add one line per secret. In your script: process.env.API_KEY
+          TOKEN: ${{ secrets.TOKEN }}
+          CHANNEL: ${{ secrets.CHANNEL }}
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/output.txt
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update output.txt [skip ci]"
+            git pull --rebase
+            git push
+          fi
