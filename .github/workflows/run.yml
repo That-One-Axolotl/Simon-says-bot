@@ -1,8 +1,6 @@
 name: Run script and update file
 
 on:
-  schedule:
-    - cron: "6,16,26,36,46,56 * * * *"   # every 10 minutes (UTC)
   workflow_dispatch:          # lets you run it manually from the Actions tab
 
 # Needed so the workflow can push commits back to the repo
