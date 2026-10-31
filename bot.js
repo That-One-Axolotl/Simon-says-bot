@@ -24,7 +24,9 @@ client.once(Events.ClientReady, async(readyClient) => {
     if(newTweets.length > 0){
         await channel.send("**Simon** posted " + newTweets.length + " new tweets!")
         for(let tweet of newTweets) {
-            let link = "https://vxtwitter.com" + tweet[1];
+            link_end = tweet[1];
+            if(link_end.endsWith("#m")){link_end = tweet[1].slice(0,-2)}
+            let link = "https://vxtwitter.com" + link_end;
             await channel.send(link);
         }
         
