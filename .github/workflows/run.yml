@@ -33,7 +33,7 @@ jobs:
 
       - name: Run script
         # Your script writes to data/output.txt while it runs
-        run: node index.js
+        run: node bot.js
         env:
           # Add one line per secret. In your script: process.env.API_KEY
           TOKEN: ${{ secrets.TOKEN }}
