@@ -58,8 +58,3 @@ function findNewTweets(tweets, prevTweets) {
 function writeTweetsToJson(tweets) {
     fs.writeFile("prevTweets.json", JSON.stringify(tweets), err =>{if(err){console.log(err)}});
 }
-
-
-
-
-console.log("test");

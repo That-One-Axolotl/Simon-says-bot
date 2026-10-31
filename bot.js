@@ -12,28 +12,35 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
 // It makes some properties non-nullable.
 client.once(Events.ClientReady, async(readyClient) => {
-	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-    const channel = await client.channels.cache.get(channel_id);
+    try{
+        console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+        const channel = await client.channels.cache.get(channel_id);
 
-    let replies = await parseTweets(await fetch_replies());
-    let posts = await parseTweets(await fetch_posts());
-    let tweets = mergeTweets(replies, posts);
-    let oldTweets = await JSON.parse(await fs.readFile("prevTweets.json", "utf8"));
-    let newTweets = await findNewTweets(tweets, oldTweets);
+        let replies = await parseTweets(await fetch_replies());
+        let posts = await parseTweets(await fetch_posts());
+        let tweets = mergeTweets(replies, posts);
+        let oldTweets = await JSON.parse(await fs.readFile("prevTweets.json", "utf8"));
+        let newTweets = await findNewTweets(tweets, oldTweets);
 
-    if(newTweets.length > 0){
-        await channel.send("**Simon** posted " + newTweets.length + " new tweets!")
-        for(let tweet of newTweets) {
-            link_end = tweet[1];
-            if(link_end.endsWith("#m")){link_end = tweet[1].slice(0,-2)}
-            let link = "https://vxtwitter.com" + link_end;
-            await channel.send(link);
+        if(newTweets.length > 0){
+            await channel.send("**Simon** posted " + newTweets.length + " new tweets!")
+            for(let tweet of newTweets) {
+                link_end = tweet[1];
+                if(link_end.endsWith("#m")){link_end = tweet[1].slice(0,-2)}
+                let link = "https://vxtwitter.com" + link_end;
+                await channel.send(link);
+            }
+            
+            writeTweetsToJson(tweets);
         }
-        
-        writeTweetsToJson(tweets);
+    } catch (err) {
+        console.error(err);
+        process.exitCode = 1;
+    } finally {
+        await client.destroy();
+        process.exit();
     }
 
-    return;
     
     
 });
