@@ -5,14 +5,14 @@ const token = process.env.TOKEN;
 
 module.exports = { fetch_replies, parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, mergeTweets };
 
-async function fetch_replies() {
-    let response = await fetch("https://nitter.cf/Simon_Hypixel/with_replies");
+async function fetch_replies(user) {
+    let response = await fetch(`https://nitter.cf/${user}/with_replies`);
     let html = await response.text();
     return html;
 }
 
-async function fetch_posts() {
-    let response = await fetch("https://nitter.cf/Simon_Hypixel/");
+async function fetch_posts(user) {
+    let response = await fetch(`https://nitter.cf/${user}/`);
     let html = await response.text();
     return html;
 }
@@ -45,7 +45,7 @@ function parseTweets(raw) {
         let time = tweet.querySelector(".tweet-date a").title;
         tweets.push([text, link, time]);
     }
-    console.log(tweets);
+    //console.log(tweets);
     return tweets;
 }
 
@@ -55,6 +55,6 @@ function findNewTweets(tweets, prevTweets) {
     return newTweets.reverse();
 }
 
-function writeTweetsToJson(tweets) {
-    fs.writeFile("prevTweets.json", JSON.stringify(tweets), err =>{if(err){console.log(err)}});
+function writeTweetsToJson(tweets, user) {
+    fs.writeFile(`prevTweets${user}.json`, JSON.stringify(tweets), err =>{if(err){console.log(err)}});
 }
