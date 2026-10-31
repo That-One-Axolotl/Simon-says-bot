@@ -21,7 +21,7 @@ client.once(Events.ClientReady, async(readyClient) => {
     let oldTweets = await JSON.parse(await fs.readFile("prevTweets.json", "utf8"));
     let newTweets = await findNewTweets(tweets, oldTweets);
 
-    if newTweets.length > 0{
+    if(newTweets.length > 0){
         await channel.send("**Simon** posted " + newTweets.length + " new tweets!")
         for(let tweet of newTweets) {
             let link = "https://vxtwitter.com" + tweet[1];
