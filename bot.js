@@ -45,8 +45,11 @@ client.once(Events.ClientReady, async(readyClient) => {
                             console.log(err);
                         }
                     }
+                    if(!link.includes(user)){
+                        await channel.send(user + " reposted:");
+                    }
                     await channel.send(link);
-                    if(index < newTweets.length - 1){
+                    if(index < newTweets.length){
                         await channel.send("---------------");
                     }
                 }
