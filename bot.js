@@ -37,8 +37,13 @@ client.once(Events.ClientReady, async(readyClient) => {
                     let link = "https://vxtwitter.com" + link_end;
 
                     if(replies.some(reply => JSON.stringify(reply) === JSON.stringify(tweet))){
-                        let mainLink = await fetch_replied_post(tweet[1]);
-                        await channel.send("https://vxtwitter.com" + mainLink);
+                        try{
+                            let mainLink = await fetch_replied_post(tweet[1]);
+                            await channel.send("https://vxtwitter.com" + mainLink);
+                        }
+                        catch(err){
+                            console.log(err);
+                        }
                     }
                     await channel.send(link);
                     if(index < newTweets.length - 1){
