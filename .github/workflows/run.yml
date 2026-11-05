@@ -1,7 +1,6 @@
 name: Run script and update file
 
-on:
-  workflow_dispatch:          # lets you run it manually from the Actions tab
+# lets you run it manually from the Actions tab
 
 # Needed so the workflow can push commits back to the repo
 permissions:
