@@ -3,7 +3,7 @@ const { JSDOM } = jsdom;
 const fs = require("node:fs");
 const token = process.env.TOKEN;
 
-module.exports = { fetch_replies, parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, mergeTweets };
+module.exports = { fetch_replies, parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, mergeTweets, fetch_replied_post };
 
 async function fetch_replies(user) {
     let response = await fetch(`https://nitter.cf/${user}/with_replies`);
@@ -20,6 +20,15 @@ async function fetch_posts(user) {
 async function writeHtmlToFileDebug() {
     let html = await fetch_replies();
     fs.writeFile("test_html.html", html, err =>{if(err){console.log(err)}});
+}
+
+async function fetch_replied_post(reply) {
+    let res = await fetch(`https://nitter.cf/${reply}`);
+    let html = await res.text();
+    let dom = new JSDOM(html);
+    let document = dom.window.document;
+    let mainTweetLink = document.querySelector(".before-tweet .timeline-item a").href;
+    return mainTweetLink;
 }
 
 function mergeTweets(a, b) {

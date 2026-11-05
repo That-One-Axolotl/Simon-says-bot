@@ -2,13 +2,14 @@
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const token = process.env.TOKEN;
 const channel_id = process.env.CHANNEL;
-const { fetch_replies, parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, mergeTweets } = require("./tweetHandling.js");
+const { fetch_replies, parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, mergeTweets, fetch_replied_post } = require("./tweetHandling.js");
 const fs = require("node:fs/promises");
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-const users = ["Simon_Hypixel", "slikey", "DevSlashNulled"]
+//const users = ["Simon_Hypixel", "slikey", "DevSlashNulled"]
+const users = ["Simon_Hypixel"]
 
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
@@ -31,11 +32,19 @@ client.once(Events.ClientReady, async(readyClient) => {
                 else{
                     await channel.send(`**${user}** posted ` + newTweets.length + " new tweets!");
                 }
-                for(let tweet of newTweets) {
+                for(let [index, tweet] of newTweets.entries()) {
                     link_end = tweet[1];
                     if(link_end.endsWith("#m")){link_end = tweet[1].slice(0,-2)}
                     let link = "https://vxtwitter.com" + link_end;
+
+                    if(replies.some(reply => JSON.stringify(reply) === JSON.stringify(tweet))){
+                        let mainLink = await fetch_replied_post(tweet[1]);
+                        await channel.send("https://vxtwitter.com" + mainLink);
+                    }
                     await channel.send(link);
+                    if(index < newTweets.length - 1){
+                        await channel.send("---------------");
+                    }
                 }
                 
                 writeTweetsToJson(tweets, user);
