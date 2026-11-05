@@ -8,8 +8,7 @@ const fs = require("node:fs/promises");
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-//const users = ["Simon_Hypixel", "slikey", "DevSlashNulled"]
-const users = ["Simon_Hypixel"]
+const users = ["Simon_Hypixel", "slikey", "DevSlashNulled"];
 
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
