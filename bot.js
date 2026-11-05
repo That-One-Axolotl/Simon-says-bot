@@ -49,7 +49,7 @@ client.once(Events.ClientReady, async(readyClient) => {
                         await channel.send(user + " reposted:");
                     }
                     await channel.send(link);
-                    if(index < newTweets.length){
+                    if(index < newTweets.length - 1){
                         await channel.send("---------------");
                     }
                 }
