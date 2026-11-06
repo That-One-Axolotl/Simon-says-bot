@@ -3,16 +3,10 @@ const { JSDOM } = jsdom;
 const fs = require("node:fs");
 const token = process.env.TOKEN;
 
-module.exports = { fetch_replies, parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, mergeTweets, fetch_replied_post };
-
-async function fetch_replies(user) {
-    let response = await fetch(`https://nitter.cf/${user}/with_replies`);
-    let html = await response.text();
-    return html;
-}
+module.exports = { parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, fetch_replied_post };
 
 async function fetch_posts(user) {
-    let response = await fetch(`https://nitter.cf/${user}/`);
+    let response = await fetch(`https://nitter.cf/${user}/with_replies`);
     let html = await response.text();
     return html;
 }
@@ -27,22 +21,12 @@ async function fetch_replied_post(reply) {
     let html = await res.text();
     let dom = new JSDOM(html);
     let document = dom.window.document;
-    let mainTweetLink = document.querySelector(".before-tweet .timeline-item a").href;
+    let replyTweets = document.querySelectorAll(".before-tweet .timeline-item a");
+    let mainTweetLink = replyTweets[replyTweets.length - 1].href;
     return mainTweetLink;
 }
 
-function mergeTweets(a, b) {
-    const byUrl = new Map();
-    for (const tweet of [...a, ...b]) {
-        if (!byUrl.has(tweet[1])) byUrl.set(tweet[1], tweet);
-    }
-
-    const getTime = t => new Date(t[2].replace(" · ", " ")).getTime();
-
-    return [...byUrl.values()].sort((x, y) => getTime(y) - getTime(x));
-}
-
-function parseTweets(raw) {
+async function parseTweets(raw, oldTweets) {
     let tweets = [];
     let dom = new JSDOM(raw);
     let document = dom.window.document;
@@ -52,7 +36,22 @@ function parseTweets(raw) {
         let text = tweet.querySelector(".tweet-content").textContent;
         let link = tweet.querySelector(".tweet-link").href;
         let time = tweet.querySelector(".tweet-date a").title;
-        tweets.push([text, link, time]);
+        let referenceLink = "";
+
+        if(!oldTweets.some(index => index[1] === link)){
+            let isReply = tweet.querySelector(".replying-to");
+            let isQuote = tweet.querySelector(".quote");
+
+
+            if(isReply != null){
+                referenceLink = await fetch_replied_post(link);
+            }
+            if(isQuote != null){
+                referenceLink = tweet.querySelector(".quote-link").href;
+            }
+        }
+
+        tweets.push([text, link, time, referenceLink]);
     }
     //console.log(tweets);
     return tweets;

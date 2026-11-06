@@ -2,7 +2,7 @@
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const token = process.env.TOKEN;
 const channel_id = process.env.CHANNEL;
-const { fetch_replies, parseTweets, findNewTweets, writeTweetsToJson, fetch_posts, mergeTweets, fetch_replied_post } = require("./tweetHandling.js");
+const { fetch_posts, parseTweets, findNewTweets, writeTweetsToJson, fetch_replied_post } = require("./tweetHandling.js");
 const fs = require("node:fs/promises");
 
 // Create a new client instance
@@ -18,10 +18,8 @@ client.once(Events.ClientReady, async(readyClient) => {
     const channel = await client.channels.cache.get(channel_id);
     try{
         for(let user of users){
-            let replies = await parseTweets(await fetch_replies(user));
-            let posts = await parseTweets(await fetch_posts(user));
-            let tweets = mergeTweets(replies, posts);
             let oldTweets = await JSON.parse(await fs.readFile(`prevTweets${user}.json`, "utf8"));
+            let tweets = await parseTweets(await fetch_posts(user), oldTweets);
             let newTweets = await findNewTweets(tweets, oldTweets);
 
             if(newTweets.length > 0){
@@ -36,17 +34,12 @@ client.once(Events.ClientReady, async(readyClient) => {
                     if(link_end.endsWith("#m")){link_end = tweet[1].slice(0,-2)}
                     let link = "https://vxtwitter.com" + link_end;
 
-                    if(replies.some(reply => JSON.stringify(reply) === JSON.stringify(tweet))){
-                        try{
-                            let mainLink = await fetch_replied_post(tweet[1]);
-                            await channel.send("https://vxtwitter.com" + mainLink);
-                        }
-                        catch(err){
-                            console.log(err);
-                        }
+                    if(tweet[3] != "" && tweet[3] != null){
+                        let mainLink = tweet[3];
+                        await channel.send("https://vxtwitter.com" + mainLink);
                     }
                     if(!link.includes(user)){
-                        await channel.send(user + " reposted:");
+                        await channel.send("**" + user + "** reposted:");
                     }
                     await channel.send(link);
                     if(index < newTweets.length - 1){
