@@ -21,7 +21,7 @@ async function fetch_replied_post(reply) {
     let html = await res.text();
     let dom = new JSDOM(html);
     let document = dom.window.document;
-    let replyTweets = document.querySelectorAll(".before-tweet .timeline-item a");
+    let replyTweets = document.querySelectorAll(".before-tweet .timeline-item .tweet-link");
     let mainTweetLink = replyTweets[replyTweets.length - 1].href;
     return mainTweetLink;
 }
