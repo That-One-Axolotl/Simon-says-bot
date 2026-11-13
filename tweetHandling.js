@@ -40,14 +40,10 @@ async function parseTweets(raw, oldTweets) {
 
         if(!oldTweets.some(index => index[1] === link)){
             let isReply = tweet.querySelector(".replying-to");
-            let isQuote = tweet.querySelector(".quote");
 
 
             if(isReply != null){
                 referenceLink = await fetch_replied_post(link);
-            }
-            if(isQuote != null){
-                referenceLink = tweet.querySelector(".quote-link").href;
             }
         }
 
