@@ -30,21 +30,26 @@ client.once(Events.ClientReady, async(readyClient) => {
                     await channel.send(`**${user}** posted ` + newTweets.length + " new tweets!");
                 }
                 for(let [index, tweet] of newTweets.entries()) {
+                    let message = "";
                     link_end = tweet[1];
                     if(link_end.endsWith("#m")){link_end = tweet[1].slice(0,-2)}
                     let link = "https://vxtwitter.com" + link_end;
 
+                    if(index != 0){
+                        message += "---------------";
+                        message += "\n";
+                    }
                     if(tweet[3] != "" && tweet[3] != null){
                         let mainLink = tweet[3];
-                        await channel.send("https://vxtwitter.com" + mainLink);
+                        message += "https://vxtwitter.com" + mainLink;
+                        message += "\n";
                     }
                     if(!link.includes(user)){
-                        await channel.send("**" + user + "** reposted:");
+                        message += "**" + user + "** reposted:";
+                        message += "\n"
                     }
-                    await channel.send(link);
-                    if(index < newTweets.length - 1){
-                        await channel.send("---------------");
-                    }
+                    message += link;
+                    await channel.send(message);
                 }
                 
                 writeTweetsToJson(tweets, user);
